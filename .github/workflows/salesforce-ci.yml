@@ -1,0 +1,41 @@
+name: Salesforce CI
+
+on:
+  push:
+    branches:
+      - fix-actions
+
+jobs:
+  my-first-test-job:
+    runs-on: ubuntu-latest
+    environment: 
+      name: test sb
+
+    steps:  
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Create the server.key file
+        env:
+          JWT_SERVER_KEY: ${{ secrets.JWT_SERVER_KEY }}
+        run: echo "$JWT_SERVER_KEY" > server.key
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Salesforce CLI
+        run: |
+          npm install @salesforce/cli --global
+
+      - name: Authenticate to Salesforce Org
+        env:
+          SFDC_CLIENT_ID: ${{ secrets.SFDC_CLIENT_ID }}
+          SFDC_USERNAME: ${{ secrets.SFDC_USERNAME }}
+          SFDC_INSTANCE_URL_RACC: ${{ secrets.SFDC_INSTANCE_URL_RACC }}
+        run: |       
+          sf org login jwt --client-id "$SFDC_CLIENT_ID" --jwt-key-file ./server.key --username "$SFDC_USERNAME" --instance-url "$SFDC_INSTANCE_URL_RACC"
+          
+      - name: List Salesforce Orgs
+        run: sf org list
