@@ -3,6 +3,7 @@ public with sharing class RandomClass {
     public RandomClass(){
         System.debug('Hej');
         System.debug('HejIgen');
+        System.debug('HejIgenIgen');
     }
     
     static Integer additionTest(Integer a, Integer b){
