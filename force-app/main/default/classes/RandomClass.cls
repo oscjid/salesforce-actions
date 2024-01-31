@@ -8,6 +8,7 @@ public with sharing class RandomClass {
         System.debug('Wow');
         System.debug('Testar igen');
         System.debug('Testar igen igen Igen Igen Igen');
+        System.debug('Testar igen igen Igen Igen Igen');
     }
     
     public static Integer additionTest(Integer a, Integer b){
