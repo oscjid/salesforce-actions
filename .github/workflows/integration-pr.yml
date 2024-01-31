@@ -54,7 +54,8 @@ jobs:
             - name: 'Scan code'
               run: |
                   cd changed-sources
-                  sf scanner run --format sarif --target './**/*.cls' --category "Design,Best Practices,Performance" --outfile 'apexScanResults.sarif'  
+                  sf scanner run --format sarif --target './**/*.cls' --category "Design,Best Practices,Performance" --outfile 'apexScanResults.sarif' 
+                  ls -a 
                   cd ..
 
             - name: Upload SARIF file
@@ -64,6 +65,7 @@ jobs:
 
             - name: "Run tests"
               run: |
+                ls -a
                 sf project deploy validate --source-dir changed-sources/ --test-level RunLocalTests
             
             
