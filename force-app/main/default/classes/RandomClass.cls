@@ -10,7 +10,7 @@ public with sharing class RandomClass {
         System.debug('Testar igen igen Igen Igen Igen');
     }
     
-    static Integer additionTest(Integer a, Integer b){
+    public static Integer additionTest(Integer a, Integer b){
         return a + b;
     }
     
