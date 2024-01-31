@@ -66,6 +66,6 @@ jobs:
             - name: "Run tests"
               run: |
                 ls -a
-                sf project deploy start --source-dir changed-sources/ --test-level RunLocalTests
+                sf project deploy start --dry-run --manifest changed-sources/package/package.xml --test-level RunLocalTests
             
             
