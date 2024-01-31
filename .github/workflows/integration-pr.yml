@@ -3,9 +3,9 @@ name: Salesforce CI
 # Workflow for pr to integration branch and sandbox.
 
 on:
-    push:
+    pull_request:
         branches:
-            - dev-actions
+            - integration
 
 jobs:
     scan-and-test:
