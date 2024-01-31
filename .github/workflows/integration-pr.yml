@@ -66,6 +66,6 @@ jobs:
             - name: "Run tests"
               run: |
                 ls -a
-                sf project deploy validate --source-dir changed-sources/ --test-level RunLocalTests
+                sfdx force:source:deploy -p "changed-sources/force-app" --checkonly --testlevel RunLocalTests
             
             
