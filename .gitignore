@@ -45,4 +45,12 @@ $RECYCLE.BIN/
 **/.venv/
 **/venv/
 
-
+# More folders and files to be ignored
+.husky
+.vscode
+scripts
+changed-sources
+config
+jest.config.js
+package-lock.json
+.pmdCache

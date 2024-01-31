@@ -6,6 +6,7 @@ public with sharing class RandomClass {
         System.debug('HejIgenIgen');
         System.debug('HejIgenIgenIgenIgen');
         System.debug('Wow');
+        System.debug('Testar igen');
     }
     
     static Integer additionTest(Integer a, Integer b){
