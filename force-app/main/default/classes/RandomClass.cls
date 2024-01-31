@@ -4,7 +4,7 @@ public with sharing class RandomClass {
         System.debug('Hej');
     }
     
-    public Integer additionTest(Integer a, Integer b){
+    static Integer additionTest(Integer a, Integer b){
         return a + b;
     }
     
