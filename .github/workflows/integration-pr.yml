@@ -62,7 +62,7 @@ jobs:
               run: |
                   cd changed-sources
                   sf scanner run --format html --target './**/*.cls' --category "Design,Best Practices,Performance" --outfile 'apexScanResults.html'
-                  echo "SCAN_RESULTS_PATH=apexScanResults.html" >> $GITHUB_ENV 
+                  echo "SCAN_RESULTS_PATH=changed-sources/apexScanResults.html" >> $GITHUB_ENV 
                   cd ..
 
             - name: Upload SARIF file
