@@ -52,13 +52,11 @@ jobs:
                   mkdir changed-sources
                   sfdx sgd:source:delta --from "HEAD~1" --output changed-sources/ --generate-delta --source force-app/
 
-            - name: Run SFDX Scanner - Report findings as comments
-              uses: mitchspano/sfdx-scan-pull-request@v0.1.15
-              with:
-                  severity-threshold: 4
-                  strictly-enforced-rules: '[{ "engine": "pmd", "category": "Performance", "rule": "AvoidDebugStatements" }]'
-              env:
-                GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: 'Scan code'
+              run: |
+                  cd changed-sources
+                  sf scanner run --format sarif --target './**/*.cls' --category "Design,Best Practices,Performance" --outfile 'apexScanResults.sarif' 
+                  cd ..
 
             - name: Upload SARIF file
               uses: github/codeql-action/upload-sarif@v3
@@ -67,7 +65,6 @@ jobs:
 
             - name: "Run tests"
               run: |
-                ls -a
                 sf project deploy start --dry-run --manifest changed-sources/package/package.xml --test-level RunLocalTests
             
             
