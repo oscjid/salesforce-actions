@@ -18,7 +18,7 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v4
               with:
-                fetch-depth: 2
+                  fetch-depth: 2
 
             - name: Set up Node.js
               uses: actions/setup-node@v4
@@ -52,7 +52,7 @@ jobs:
                   mkdir changed-sources
                   sfdx sgd:source:delta --from "HEAD~1" --output changed-sources/ --generate-delta --source force-app/
 
-            - name: 'Scan code'
+            - name: "Scan code"
               run: |
                   cd changed-sources
                   sf scanner run --format sarif --target './**/*.cls' --category "Design,Best Practices,Performance" --outfile 'apexScanResults.sarif' 
@@ -61,10 +61,34 @@ jobs:
             - name: Upload SARIF file
               uses: github/codeql-action/upload-sarif@v3
               with:
-                sarif_file: changed-sources/apexScanResults.sarif
+                  sarif_file: changed-sources/apexScanResults.sarif
 
             - name: "Run tests"
               run: |
-                sf project deploy start --dry-run --manifest changed-sources/package/package.xml --test-level RunLocalTests
-            
-            
+                  sf project deploy start --dry-run --manifest changed-sources/package/package.xml --test-level RunLocalTests > test_results.txt
+                  echo "TEST_RESULTS_PATH=test_results.txt" >> $GITHUB_ENV
+
+            - name: "Parse SARIF and Test Results"
+              run: |
+
+                  node parseSarif.js changed-sources/apexScanResults.sarif > sarif_summary.txt
+                  echo "SARIF_SUMMARY_PATH=sarif_summary.txt" >> $GITHUB_ENV
+
+                  node parseTestResults.js test_results.txt > test_summary.txt
+                  echo "TEST_SUMMARY_PATH=test_summary.txt" >> $GITHUB_ENV
+
+            - name: Post results to PR
+              uses: actions/github-script@v7
+              with:
+                  github-token: ${{secrets.GITHUB_TOKEN}}
+                  script: |
+                      const issue_number = context.issue.number;
+                      const fs = require('fs');
+                      const sarif_summary = fs.readFileSync(process.env.SARIF_SUMMARY_PATH, 'utf8');
+                      const test_summary = fs.readFileSync(process.env.TEST_SUMMARY_PATH, 'utf8');
+                      github.rest.issues.createComment({
+                        issue_number: issue_number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        body: "### Code Scan Summary:\n```\n" + sarif_summary + "\n```\n### Test Summary:\n```\n" + test_summary + "\n```"
+                      });
