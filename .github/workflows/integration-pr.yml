@@ -58,6 +58,13 @@ jobs:
                   sf scanner run --format sarif --target './**/*.cls' --category "Design,Best Practices,Performance" --outfile 'apexScanResults.sarif' 
                   cd ..
 
+            - name: "Scan code"
+              run: |
+                  cd changed-sources
+                  sf scanner run --format html --target './**/*.cls' --category "Design,Best Practices,Performance" --outfile 'apexScanResults.html'
+                  echo "SCAN_RESULTS_PATH=apexScanResults.html" >> $GITHUB_ENV 
+                  cd ..
+
             - name: Upload SARIF file
               uses: github/codeql-action/upload-sarif@v3
               with:
@@ -75,10 +82,11 @@ jobs:
                   script: |
                       const issue_number = context.issue.number;
                       const fs = require('fs');
+                      const scan_content = fs.readFileSync(process.env.SCAN_RESULTS_PATH, 'utf8');
                       const test_results = fs.readFileSync(process.env.TEST_RESULTS_PATH, 'utf8');
                       github.rest.issues.createComment({
                         issue_number: issue_number,
                         owner: context.repo.owner,
                         repo: context.repo.repo,
-                        body: "### Test Results:\n```" + test_results + "```"
+                        body: "### Code Scan Results:\n```" + scan_content + "```\n### Test Results:\n```" + test_results + "```"
                       });
