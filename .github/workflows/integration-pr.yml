@@ -37,7 +37,8 @@ jobs:
 
             - name: Prepare for parallel jobs
               id: set-matrix
-              run: echo "::set-output name=matrix::{\"include\":[{\"job\":\"scan\"},{\"job\":\"test\"}]}"
+              run: |
+                echo "matrix={\"include\":[{\"job\":\"scan\"},{\"job\":\"test\"}]}" >> $GITHUB_ENV
 
     code-scan:
         needs: setup
