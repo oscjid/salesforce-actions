@@ -18,7 +18,7 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v4
               with:
-                fetch-depth: 2
+                  fetch-depth: 2
 
             - name: Set up Node.js
               uses: actions/setup-node@v4
@@ -52,7 +52,7 @@ jobs:
                   mkdir changed-sources
                   sfdx sgd:source:delta --from "HEAD~1" --output changed-sources/ --generate-delta --source force-app/
 
-            - name: 'Scan code'
+            - name: "Scan code"
               run: |
                   cd changed-sources
                   sf scanner run --format sarif --target './**/*.cls' --category "Design,Best Practices,Performance" --outfile 'apexScanResults.sarif' 
@@ -62,11 +62,31 @@ jobs:
             - name: Upload SARIF file
               uses: github/codeql-action/upload-sarif@v3
               with:
-                sarif_file: changed-sources/apexScanResults.sarif
+                  sarif_file: changed-sources/apexScanResults.sarif
 
             - name: "Run tests"
+              id: run_tests
               run: |
-                ls -a
-                sf project deploy start --dry-run --manifest changed-sources/package/package.xml --test-level RunLocalTests
-            
-            
+                  result=$(sf project deploy start --dry-run --manifest changed-sources/package/package.xml --test-level RunLocalTests)
+                  echo "::set-output name=test_results::${result}"
+
+            - name: Read SARIF file
+              id: read_sarif
+              run: |
+                  sarif_content=$(cat changed-sources/apexScanResults.sarif)
+                  echo "::set-output name=sarif_content::$sarif_content"
+
+            - name: Post results to PR
+              uses: actions/github-script@v5
+              with:
+                  github-token: ${{secrets.GITHUB_TOKEN}}
+                  script: |
+                      const issue_number = context.issue.number;
+                      const sarif_content = `${{ steps.read_sarif.outputs.sarif_content }}`;
+                      const test_results = `${{ steps.run_tests.outputs.test_results }}`;
+                      github.rest.issues.createComment({
+                        issue_number: issue_number,
+                        owner: context.repo.owner,
+                        repo: context.repo.repo,
+                        body: "### Code Scan Results:\n```\n" + sarif_content + "\n```\n### Test Results:\n```\n" + test_results + "\n```"
+                      });
