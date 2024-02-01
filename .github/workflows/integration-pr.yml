@@ -68,15 +68,6 @@ jobs:
                   sf project deploy start --dry-run --manifest changed-sources/package/package.xml --test-level RunLocalTests > test_results.txt
                   echo "TEST_RESULTS_PATH=test_results.txt" >> $GITHUB_ENV
 
-            - name: "Parse SARIF and Test Results"
-              run: |
-
-                  node parseSarif.js changed-sources/apexScanResults.sarif > sarif_summary.txt
-                  echo "SARIF_SUMMARY_PATH=sarif_summary.txt" >> $GITHUB_ENV
-
-                  node parseTestResults.js test_results.txt > test_summary.txt
-                  echo "TEST_SUMMARY_PATH=test_summary.txt" >> $GITHUB_ENV
-
             - name: Post results to PR
               uses: actions/github-script@v7
               with:
@@ -84,11 +75,10 @@ jobs:
                   script: |
                       const issue_number = context.issue.number;
                       const fs = require('fs');
-                      const sarif_summary = fs.readFileSync(process.env.SARIF_SUMMARY_PATH, 'utf8');
                       const test_summary = fs.readFileSync(process.env.TEST_SUMMARY_PATH, 'utf8');
                       github.rest.issues.createComment({
                         issue_number: issue_number,
                         owner: context.repo.owner,
                         repo: context.repo.repo,
-                        body: "### Code Scan Summary:\n```\n" + sarif_summary + "\n```\n### Test Summary:\n```\n" + test_summary + "\n```"
+                        body: ### Test Summary:\n```\n" + test_summary + "\n```"
                       });
