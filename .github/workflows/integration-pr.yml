@@ -80,6 +80,7 @@ jobs:
                   github-token: ${{secrets.GITHUB_TOKEN}}
                   script: |
                       const issue_number = context.issue.number;
+                      const fs = require('fs');
                       const test_results = fs.readFileSync(process.env.TEST_RESULTS_PATH, 'utf8');
                       const artifactLink = `${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`;
                       github.rest.issues.createComment({
