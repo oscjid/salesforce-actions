@@ -60,9 +60,9 @@ jobs:
 
             - name: "Scan code"
               run: |
-                cd changed-sources
-                sf scanner run --format html --target './**/*.cls' --category "Design,Best Practices,Performance" --outfile 'apexScanResults.html' 
-                cd ..
+                  cd changed-sources
+                  sf scanner run --format html --target './**/*.cls' --category "Design,Best Practices,Performance" --outfile 'apexScanResults.html' 
+                  cd ..
 
             - name: Upload HTML Scan Results as Artifact
               uses: actions/upload-artifact@v3
@@ -88,10 +88,12 @@ jobs:
                       const issue_number = context.issue.number;
                       const fs = require('fs');
                       const test_results = fs.readFileSync(process.env.TEST_RESULTS_PATH, 'utf8');
+                      const branchName = context.payload.pull_request.head.ref; // Dynamically fetch the branch name
+                      const codeScanningUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/security/code-scanning?query=is%3Aopen+branch%3A${branchName}`;
                       const artifactLink = `${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`;
                       github.rest.issues.createComment({
                         issue_number: issue_number,
                         owner: context.repo.owner,
                         repo: context.repo.repo,
-                        body: `### Code Scan Results:\n[Download Scan Results](${artifactLink}) (Navigate to Artifacts to download the HTML scan results)\n### Test Results:\n\`\`\`${test_results}\`\`\``
+                        body: `### Code Scan Results:\n[View Code Scanning Alerts](${codeScanningUrl})\n[Download Scan Results](${artifactLink}) (Navigate to Artifacts to download the HTML scan results)\n### Test Results:\n\`\`\`${test_results}\`\`\``
                       });
