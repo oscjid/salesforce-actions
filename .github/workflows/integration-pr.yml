@@ -65,16 +65,14 @@ jobs:
                   sarif_file: changed-sources/apexScanResults.sarif
 
             - name: "Run tests"
-              id: run_tests
               run: |
-                  result=$(sf project deploy start --dry-run --manifest changed-sources/package/package.xml --test-level RunLocalTests)
-                  echo "::set-output name=test_results::${result}"
+                  sf project deploy start --dry-run --manifest changed-sources/package/package.xml --test-level RunLocalTests > test_results.txt
+                  echo "TEST_RESULTS_PATH=test_results.txt" >> $GITHUB_ENV
 
             - name: Read SARIF file
-              id: read_sarif
               run: |
-                  sarif_content=$(cat changed-sources/apexScanResults.sarif)
-                  echo "::set-output name=sarif_content::$sarif_content"
+                  cp changed-sources/apexScanResults.sarif sarif_results.sarif
+                  echo "SARIF_RESULTS_PATH=sarif_results.sarif" >> $GITHUB_ENV
 
             - name: Post results to PR
               uses: actions/github-script@v7
@@ -82,8 +80,9 @@ jobs:
                   github-token: ${{secrets.GITHUB_TOKEN}}
                   script: |
                       const issue_number = context.issue.number;
-                      const sarif_content = \`${{ steps.read_sarif.outputs.sarif_content }}\`;
-                      const test_results = \`${{ steps.run_tests.outputs.test_results }}\`;
+                      const fs = require('fs');
+                      const sarif_content = fs.readFileSync(process.env.SARIF_RESULTS_PATH, 'utf8');
+                      const test_results = fs.readFileSync(process.env.TEST_RESULTS_PATH, 'utf8');
                       github.rest.issues.createComment({
                         issue_number: issue_number,
                         owner: context.repo.owner,
