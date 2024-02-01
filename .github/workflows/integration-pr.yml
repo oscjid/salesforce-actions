@@ -58,6 +58,12 @@ jobs:
                   sf scanner run --format sarif --target './**/*.cls' --category "Design,Best Practices,Performance" --outfile 'apexScanResults.sarif' 
                   cd ..
 
+            - name: "Scan code"
+              run: |
+                cd changed-sources
+                sf scanner run --format html --target './**/*.cls' --category "Design,Best Practices,Performance" --outfile 'apexScanResults.html' 
+                cd ..
+
             - name: Upload HTML Scan Results as Artifact
               uses: actions/upload-artifact@v3
               with:
