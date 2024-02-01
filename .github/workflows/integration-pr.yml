@@ -75,10 +75,10 @@ jobs:
                   script: |
                       const issue_number = context.issue.number;
                       const fs = require('fs');
-                      const test_summary = fs.readFileSync(process.env.TEST_RESULTS_PATH, 'utf8');
+                      const test_results = fs.readFileSync(process.env.TEST_RESULTS_PATH, 'utf8');
                       github.rest.issues.createComment({
                         issue_number: issue_number,
                         owner: context.repo.owner,
                         repo: context.repo.repo,
-                        body: ### Test Summary:\n```\n" + test_summary + "\n```"
+                        body: "### Test Results:\n```" + test_results + "```"
                       });
