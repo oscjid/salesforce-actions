@@ -81,6 +81,7 @@ jobs:
 
       - name: Run tests
         run: |
+            ls -a
             sf project deploy start --dry-run --manifest changed-sources/package/package.xml --test-level RunLocalTests > test_results.txt
         id: test-run
 
