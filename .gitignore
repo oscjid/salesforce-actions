@@ -53,5 +53,4 @@ changed-sources
 config
 jest.config.js
 package-lock.json
-sfdx-project.json
 .pmdCache
