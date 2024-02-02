@@ -74,7 +74,7 @@ jobs:
       - name: Download delta packages
         uses: actions/download-artifact@v4
         with:
-          name: delta-packages
+          name: changed-sources
 
       - name: Set up Salesforce CLI
         run: npm install @salesforce/cli --global
