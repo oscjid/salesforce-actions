@@ -65,7 +65,7 @@ jobs:
 
             - name: "Run tests"
               run: |
-                  sf project deploy start --dry-run --manifest changed-sources/package/package.xml --test-level RunLocalTests > test_results.txt
+                  sf project deploy validate --source-dir changed-sources/ --test-level RunLocalTests > test_results.txt
                   echo "TEST_RESULTS_PATH=test_results.txt" >> $GITHUB_ENV
 
             - name: Post results to PR
