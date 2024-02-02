@@ -2,9 +2,10 @@ public with sharing class RandomClass {
 
     public RandomClass(){
         System.debug('Hej');
+        System.debug('Hej2');
     }
     
-    public Integer additionTest(Integer a, Integer b){
+    public static Integer additionTest(Integer a, Integer b){
         return a + b;
     }
     
