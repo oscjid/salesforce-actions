@@ -49,23 +49,14 @@ jobs:
                   mkdir changed-sources
                   sfdx sgd:source:delta --from "HEAD~1" --output changed-sources/ --generate-delta --source force-app/
 
-            - name: "Scan code"
-              run: |
-                  cd changed-sources
-                  sf scanner run --format sarif --target './**/*.cls' --category "Design,Best Practices,Performance" --outfile 'apexScanResults.sarif' 
-                  cd ..
-
-            - name: Upload SARIF file
-              uses: github/codeql-action/upload-sarif@v3
-              with:
-                  sarif_file: changed-sources/apexScanResults.sarif
-
-            - name: "Run tests"
+            - name: "Run tests and get coverage"
               run: |
                   sf project deploy start --dry-run --manifest changed-sources/package/package.xml --test-level RunLocalTests > test_results.txt
-                  echo "TEST_RESULTS_PATH=test_results.txt" >> $GITHUB_ENV
+                    sfdx force:apex:test:run --codecoverage --resultformat json --outputdir ./test-results --wait 10
+                    echo "TEST_RESULTS_PATH=test_results.txt" >> $GITHUB_ENV
+                    echo "COVERAGE_RESULTS_PATH=./test-results/test-result-codecoverage.json" >> $GITHUB_ENV
 
-            - name: Post results to PR
+            - name: Post results and coverage to PR
               uses: actions/github-script@v7
               with:
                   github-token: ${{secrets.GITHUB_TOKEN}}
@@ -73,13 +64,13 @@ jobs:
                       const issue_number = context.issue.number;
                       const fs = require('fs');
                       const test_results = fs.readFileSync(process.env.TEST_RESULTS_PATH, 'utf8');
+                      const coverage_results = JSON.parse(fs.readFileSync(process.env.COVERAGE_RESULTS_PATH, 'utf8'));
+                      const coverageSummary = `Total Coverage: ${coverage_results.totalCoverage}%`;
                       const branchName = context.payload.pull_request.head.ref;
                       const codeScanningUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/security/code-scanning?query=is%3Aopen+branch%3A${branchName}`;
                       github.rest.issues.createComment({
                         issue_number: issue_number,
                         owner: context.repo.owner,
                         repo: context.repo.repo,
-                        body: `### Code Scan Results:\n[View Code Scanning Alerts](${codeScanningUrl})\n### Test Results:\n\`\`\`${test_results}\`\`\``
+                        body: `### Code Scan Results:\n[View Code Scanning Alerts](${codeScanningUrl})\n### Test Results:\n\`\`\`${test_results}\`\`\`\n### Code Coverage:\n\`\`\`${coverageSummary}\`\`\``
                       });
-
-
