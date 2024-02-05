@@ -8,6 +8,7 @@ on:
 
 jobs:
     validate-production-push:
+        if: github.actor != 'github-actions[bot]'
         runs-on: ubuntu-latest
         environment:
             name: production
