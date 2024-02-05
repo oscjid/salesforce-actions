@@ -1,14 +1,15 @@
-name: Production Push
+name: Production PR Closed
 
 on:
-    push:
+    pull_request:
+        types: [closed]
         branches:
             - main
             - master
 
 jobs:
     validate-production-push:
-        if: github.actor != 'github-actions[bot]'
+        if: github.event.pull_request.merged == true
         runs-on: ubuntu-latest
         environment:
             name: production
@@ -43,5 +44,4 @@ jobs:
 
             - name: "Run validation"
               run: |
-                  sf project deploy validate --manifest changed-sources/package/package.xml --test-level RunLocalTests --verbose > test_results.txt
-                  echo "TEST_RESULTS_PATH=test_results.txt" >> $GITHUB_ENV
+                  sf project deploy validate --manifest changed-sources/package/package.xml --test-level RunLocalTests --verbose
