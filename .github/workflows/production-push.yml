@@ -1,0 +1,80 @@
+name: Production Push
+
+on:
+    push:
+        branches:
+            - main
+            - master
+
+jobs:
+    retrieve-production-metadata:
+        runs-on: ubuntu-latest
+        environment:
+            name: production
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: lts/*
+
+            - name: Install Salesforce CLI
+              run: |
+                  npm install @salesforce/cli --global
+
+            - name: Retrieve Production Metadata
+              run: |
+                  sf project retrieve start --manifest manifest/package.xml
+
+            - name: Configure Git
+              run: |
+                  git config --global user.email "github-actions[bot]@users.noreply.github.com"
+                  git config --global user.name "GitHub Actions"
+
+            - name: Commit Retrieved Metadata
+              run: |
+                  git add .
+                  git commit -m "Retrieve production metadata" -a || echo "No changes to commit"
+                  git push origin main
+
+    validate-producton-push:
+        runs-on: ubuntu-latest
+        environment:
+            name: production
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: lts/*
+
+            - name: Install Salesforce CLI
+              run: |
+                  npm install @salesforce/cli --global
+
+            - name: "Installing sfdx git delta"
+              run: |
+                  echo y | sfdx plugins:install sfdx-git-delta
+                  sfdx plugins
+
+            - name: Authenticate to Production Org
+              run: |
+                  sf org login sfdx-url --set-default --sfdx-url-file <(echo "${{ secrets.SFDX_AUTH_URL }}")
+
+            - name: "Create delta packages for new, modified or deleted metadata"
+              run: |
+                  mkdir changed-sources
+                  sfdx sgd:source:delta --from "HEAD~1" --output changed-sources/ --generate-delta --source force-app/
+
+            - name: "Run tests"
+              run: |
+                  sf project deploy validate --manifest changed-sources/package/package.xml --test-level RunLocalTests --verbose > test_results.txt
+                  echo "TEST_RESULTS_PATH=test_results.txt" >> $GITHUB_ENV
