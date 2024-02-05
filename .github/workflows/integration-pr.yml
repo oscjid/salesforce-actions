@@ -5,6 +5,8 @@ on:
         branches:
             - integration
 
+            #hshs
+
 jobs:
     quality-check-integration-pr:
         runs-on: ubuntu-latest
