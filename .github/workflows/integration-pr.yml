@@ -5,7 +5,7 @@ on:
         branches:
             - integration
 
-            #Test
+            #Test2
 
 jobs:
     quality-check-integration-pr:
