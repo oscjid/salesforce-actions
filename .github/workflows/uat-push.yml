@@ -6,7 +6,7 @@ on:
             - uat
 
 jobs:
-    scan-and-test:
+    deploy-to-uat:
         runs-on: ubuntu-latest
         environment:
             name: uat

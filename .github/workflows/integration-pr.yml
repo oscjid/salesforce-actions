@@ -6,7 +6,7 @@ on:
             - integration
 
 jobs:
-    scan-and-test:
+    quality-check-integration-pr:
         runs-on: ubuntu-latest
         environment:
             name: integration
