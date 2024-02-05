@@ -7,7 +7,7 @@ on:
             - master
 
 jobs:
-    validate-production-pr:
+    retrieve-metadata-to-main:
         runs-on: ubuntu-latest
         environment:
             name: production
@@ -15,12 +15,54 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v4
               with:
-                  fetch-depth: 2
+                  fetch-depth: 0
+                  ref: ${{ github.base_ref }}
 
             - name: Set up Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: "18"
+                  node-version: lts/*
+
+            - name: Install Salesforce CLI
+              run: |
+                  npm install @salesforce/cli --global
+
+            - name: Authenticate to Production Org
+              run: |
+                  sf org login sfdx-url --set-default --sfdx-url-file <(echo "${{ secrets.SFDX_AUTH_URL }}")
+
+            - name: Retrieve Production Metadata
+              run: |
+                  sf project retrieve start --manifest manifest/package.xml
+
+            - name: Configure Git
+              run: |
+                  git config --global user.email "github-actions[bot]@users.noreply.github.com"
+                  git config --global user.name "GitHub Actions"
+
+            - name: Commit Retrieved Metadata
+              run: |
+                  git add .
+                  git commit -m "Retrieve production metadata" -a || echo "No changes to commit"
+            
+            - name: Push to Triggered Branch
+              run: git push origin ${{ env.TRIGGER_BRANCH }}         
+
+    validate-production-pr:
+        needs: retrieve-metadata-to-main
+        runs-on: ubuntu-latest
+        environment:
+            name: production
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: lts/*
 
             - name: Install Salesforce CLI
               run: |
@@ -42,7 +84,7 @@ jobs:
 
             - name: "Run tests"
               run: |
-                  sf project deploy validate --manifest changed-sources/package/package.xml --test-level RunLocalTests --verbose > test_results.txt
+                  sf project deploy start --dry-run --manifest changed-sources/package/package.xml --test-level RunLocalTests --verbose > test_results.txt
                   echo "TEST_RESULTS_PATH=test_results.txt" >> $GITHUB_ENV
 
             - name: Post results to PR

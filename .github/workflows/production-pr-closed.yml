@@ -1,0 +1,47 @@
+name: Production PR Closed
+
+on:
+    pull_request:
+        types: [closed]
+        branches:
+            - main
+            - master
+
+jobs:
+    validate-production-push:
+        if: github.event.pull_request.merged == true
+        runs-on: ubuntu-latest
+        environment:
+            name: production
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: lts/*
+
+            - name: Install Salesforce CLI
+              run: |
+                  npm install @salesforce/cli --global
+
+            - name: "Installing sfdx git delta"
+              run: |
+                  echo y | sfdx plugins:install sfdx-git-delta
+                  sfdx plugins
+
+            - name: Authenticate to Production Org
+              run: |
+                  sf org login sfdx-url --set-default --sfdx-url-file <(echo "${{ secrets.SFDX_AUTH_URL }}")
+
+            - name: "Create delta packages for new, modified or deleted metadata"
+              run: |
+                  mkdir changed-sources
+                  sfdx sgd:source:delta --from "HEAD~1" --output changed-sources/ --generate-delta --source force-app/
+
+            - name: "Run validation"
+              run: |
+                  sf project deploy validate --manifest changed-sources/package/package.xml --test-level RunLocalTests --verbose
