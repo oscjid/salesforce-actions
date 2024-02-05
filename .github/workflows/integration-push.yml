@@ -6,7 +6,7 @@ on:
             - integration
 
 jobs:
-    scan-and-test:
+    deploy-to-integration:
         runs-on: ubuntu-latest
         environment:
             name: integration
