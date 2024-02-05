@@ -8,6 +8,7 @@ private class RandomClassTest {
         Assert.isNotNull(rc, 'The constructor should return a new instance of the RandomClass');
     }
 
+    // Writing comment to test
 
     @isTest
     static void additionTest() {
