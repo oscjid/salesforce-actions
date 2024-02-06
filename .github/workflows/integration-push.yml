@@ -14,7 +14,7 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v4
               with:
-                  fetch-depth: 2
+                  fetch-depth: 0
 
             - name: Set up Node.js
               uses: actions/setup-node@v4
@@ -42,4 +42,4 @@ jobs:
 
             - name: "Deploy changes to Integration Org"
               run: |
-                  sf project deploy start --manifest changed-sources/package/package.xml --test-level NoTestRun
+                  sf project deploy start --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level RunLocalTests

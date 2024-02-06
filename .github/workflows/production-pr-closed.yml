@@ -44,4 +44,4 @@ jobs:
 
             - name: "Run validation"
               run: |
-                  sf project deploy validate --manifest changed-sources/package/package.xml --test-level RunLocalTests --verbose
+                  sf project deploy validate --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level RunLocalTests --verbose
