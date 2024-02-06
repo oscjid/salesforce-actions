@@ -19,7 +19,7 @@ jobs:
             - name: Set up Node.js
               uses: actions/setup-node@v4
               with:
-                node-version: lts/*
+                  node-version: lts/*
 
             - name: Install Salesforce CLI
               run: |
@@ -60,11 +60,11 @@ jobs:
                   sarif_file: changed-sources/apexScanResults.sarif
 
             - name: "Run tests"
-              continue-on-error: true
+              id: run_tests
               run: |
-                  sf project deploy start --dry-run --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level RunLocalTests --verbose > test_results.txt || true
+                  sf project deploy start --dry-run --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level RunLocalTests --verbose > test_results.txt || echo "TEST_FAILED=true" >> $GITHUB_ENV
                   echo "TEST_RESULTS_PATH=test_results.txt" >> $GITHUB_ENV
-                  cat test_results.txt
+              shell: bash
 
             - name: Post results to PR
               uses: actions/github-script@v7
@@ -82,5 +82,3 @@ jobs:
                         repo: context.repo.repo,
                         body: `### Code Scan Results:\n[View Code Scanning Alerts](${codeScanningUrl})\n### Test Results:\n\`\`\`${test_results}\`\`\``
                       });
-
-
