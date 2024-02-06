@@ -12,6 +12,6 @@ private class RandomClassTest {
     @isTest
     static void additionTest() {
         Integer result = RandomClass.additionTest(1, 1);
-        System.assertEquals(3,result, 'The result should be 2');
+        System.assertEquals(2,result, 'The result should be 2');
     }
 }
