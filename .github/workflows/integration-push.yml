@@ -19,7 +19,7 @@ jobs:
             - name: Set up Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: "18"
+                  node-version: lts/*
 
             - name: Install Salesforce CLI
               run: |
@@ -38,7 +38,6 @@ jobs:
               run: |
                   mkdir changed-sources
                   sfdx sgd:source:delta --from "HEAD~1" --output changed-sources/ --generate-delta --source force-app/
-
 
             - name: "Deploy changes to Integration Org"
               run: |
