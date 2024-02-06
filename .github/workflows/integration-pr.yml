@@ -50,7 +50,7 @@ jobs:
 
             - name: "Download PMD ruleset"
               run: |
-                  curl -L -o itaros-pmd-ruleset.xml https://raw.githubusercontent.com/Itaros-AB/dev-ops/main/apex-pmd-ruleset/itaros-pmd-ruleset.xml
+                  curl -H "Authorization: token ${{ secrets.GH_PAT }}" -L -o itaros-pmd-ruleset.xml https://raw.githubusercontent.com/Itaros-AB/dev-ops/main/apex-pmd-ruleset/itaros-pmd-ruleset.xml
 
             - name: "Scan code"
               run: |
