@@ -87,8 +87,6 @@ jobs:
                         body: `### Code Scan Results:\n[View Code Scanning Alerts](${codeScanningUrl})\n### Test Results:\n\`\`\`${test_results}\`\`\``
                       });
 
-            - name: Fail workflow if tests failed
-              if: env.test_outcome != '0'
-              run: |
-                  echo "Failing the workflow because tests did not pass."
-                  exit 1
+            - name: Fail if tests failed
+              if: env.TEST_EXIT_CODE != '0'
+              run: exit 1
