@@ -14,28 +14,53 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup dependencies
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Install Salesforce CLI
+        run: npm install @salesforce/cli --global
+
+      - name: Installing sfdx git delta
         run: |
-          npm install @salesforce/cli --global
           echo y | sfdx plugins:install sfdx-git-delta
           sfdx plugins
-          sf plugins install @salesforce/sfdx-scanner
-          actions/setup-java@v4
-          with:
-            distribution: "corretto"
-            java-version: "17"
 
-      - name: Authenticate and prepare environment
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: "corretto"
+          java-version: "17"
+
+      - name: Installing SFDX scanner
+        run: sf plugins install @salesforce/sfdx-scanner
+
+      - name: Authenticate to Integration Org
+        run: sf org login sfdx-url --set-default --sfdx-url-file <(echo "${{ secrets.SFDX_AUTH_URL }}")
+
+      - name: Create delta packages for new, modified or deleted metadata
         run: |
-          sf org login sfdx-url --set-default --sfdx-url-file <(echo "${{ secrets.SFDX_AUTH_URL }}")
           mkdir changed-sources
           sfdx sgd:source:delta --to "HEAD" --from "HEAD~1" --output changed-sources/ --generate-delta --source force-app/
 
-      - name: Run tests and post results
+      - name: Scan code
         run: |
-          sf project deploy start --dry-run --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level RunLocalTests --verbose > test_results.txt || echo "Tests failed, but results will still be posted."
+          cd changed-sources
+          sf scanner run --format sarif --target './**/*.cls' --category "Design,Best Practices,Performance" --outfile 'apexScanResults.sarif' 
+          cd ..
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: changed-sources/apexScanResults.sarif
+
+      - name: Run tests and capture results
+        id: run_tests
+        run: |
+          sf project deploy start --dry-run --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level RunLocalTests --verbose > test_results.txt
+          echo "::set-output name=test_exit_code::$?"
           cat test_results.txt
-          echo "::set-output name=tests_failed::$?"
         continue-on-error: true
 
       - name: Post test results to PR
@@ -54,3 +79,7 @@ jobs:
               repo: context.repo.repo,
               body: `### Code Scan Results:\n[View Code Scanning Alerts](${codeScanningUrl})\n### Test Results:\n\`\`\`${test_results}\`\`\``
             });
+
+      - name: Fail if tests failed
+        if: steps.run_tests.outputs.test_exit_code != '0'
+        run: exit 1
