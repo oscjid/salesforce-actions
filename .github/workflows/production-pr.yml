@@ -44,9 +44,9 @@ jobs:
               run: |
                   git add .
                   git commit -m "Retrieve production metadata" -a || echo "No changes to commit"
-            
+
             - name: Push to Triggered Branch
-              run: git push origin ${{ env.TRIGGER_BRANCH }}         
+              run: git push origin ${{ env.TRIGGER_BRANCH }}
 
     validate-production-pr:
         needs: retrieve-metadata-to-main
@@ -82,10 +82,22 @@ jobs:
                   mkdir changed-sources
                   sfdx sgd:source:delta --from "HEAD~1" --output changed-sources/ --generate-delta --source force-app/
 
+            - name: Upload changed-sources folder as artifact
+              uses: actions/upload-artifact@v4
+              with:
+                name: changed-sources
+                path: changed-sources
+
             - name: "Run tests"
+              id: run_tests
               run: |
+                  set +e
                   sf project deploy start --dry-run --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level RunLocalTests --verbose > test_results.txt
+                  test_exit_code=$?
+                  set -e
                   echo "TEST_RESULTS_PATH=test_results.txt" >> $GITHUB_ENV
+                  echo "TEST_EXIT_CODE=$test_exit_code" >> $GITHUB_ENV
+              shell: bash
 
             - name: Post results to PR
               uses: actions/github-script@v7
@@ -102,4 +114,6 @@ jobs:
                         body: `### Test Results:\n\`\`\`${test_results}\`\`\``
                       });
 
-
+            - name: Fail if tests failed
+              if: env.TEST_EXIT_CODE != '0'
+              run: exit 1

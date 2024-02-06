@@ -19,7 +19,7 @@ jobs:
             - name: Set up Node.js
               uses: actions/setup-node@v4
               with:
-                  node-version: "18"
+                  node-version: lts/*
 
             - name: Install Salesforce CLI
               run: |
@@ -41,4 +41,4 @@ jobs:
 
             - name: "Deploy changes to UAT Org"
               run: |
-                sf project deploy start --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level RunLocalTests
+                  sf project deploy start --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level RunLocalTests
