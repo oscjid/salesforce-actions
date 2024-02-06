@@ -48,10 +48,14 @@ jobs:
                   mkdir changed-sources
                   sfdx sgd:source:delta --from "HEAD~1" --output changed-sources/ --generate-delta --source force-app/
 
+            - name: "Download PMD ruleset"
+              run: |
+                  curl -L -o itaros-pmd-ruleset.xml https://raw.githubusercontent.com/Itaros-AB/dev-ops/main/apex-pmd-ruleset/itaros-pmd-ruleset.xml
+
             - name: "Scan code"
               run: |
                   cd changed-sources
-                  sf scanner run --format sarif --target './**/*.cls' --category "Design,Best Practices,Performance" --outfile 'apexScanResults.sarif' 
+                  sf scanner run --format sarif --target './**/*.cls' --pmdconfig ../itaros-pmd-ruleset.xml --outfile 'apexScanResults.sarif' 
                   cd ..
 
             - name: Upload SARIF file
@@ -62,8 +66,8 @@ jobs:
             - name: Upload changed-sources folder as artifact
               uses: actions/upload-artifact@v4
               with:
-                name: changed-sources
-                path: changed-sources
+                  name: changed-sources
+                  path: changed-sources
 
             - name: "Run tests"
               id: run_tests
