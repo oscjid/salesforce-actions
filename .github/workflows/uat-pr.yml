@@ -14,7 +14,7 @@ jobs:
             - name: Checkout code
               uses: actions/checkout@v4
               with:
-                  fetch-depth: 2
+                  fetch-depth: 0
 
             - name: Set up Node.js
               uses: actions/setup-node@v4
@@ -41,7 +41,7 @@ jobs:
 
             - name: "Run tests"
               run: |
-                  sf project deploy start --dry-run --manifest changed-sources/package/package.xml --test-level RunLocalTests --verbose > test_results.txt
+                  sf project deploy start --dry-run --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level RunLocalTests --verbose > test_results.txt
                   echo "TEST_RESULTS_PATH=test_results.txt" >> $GITHUB_ENV
 
             - name: Post results to PR
