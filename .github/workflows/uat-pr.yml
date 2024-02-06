@@ -40,12 +40,12 @@ jobs:
                   sfdx sgd:source:delta --from "HEAD~1" --output changed-sources/ --generate-delta --source force-app/
 
             - name: "Run tests"
+              continue-on-error: true
               run: |
-                  sf project deploy start --dry-run --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level RunLocalTests --verbose > test_results.txt || true
+                  sf project deploy start --dry-run --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level RunLocalTests --verbose > test_results.txt
                   echo "TEST_RESULTS_PATH=test_results.txt" >> $GITHUB_ENV
 
             - name: Post results to PR
-              if: always()
               uses: actions/github-script@v7
               with:
                   github-token: ${{secrets.GITHUB_TOKEN}}
