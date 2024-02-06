@@ -7,7 +7,7 @@ private class RandomClassTest {
         Assert.isNotNull(rc, 'The constructor should return a new instance of the RandomClass');
     }
 
-    // Writing comment to test
+    // Writing comment to test again
 
     @isTest
     static void additionTest() {
