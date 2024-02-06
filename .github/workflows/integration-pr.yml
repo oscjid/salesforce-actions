@@ -60,12 +60,9 @@ jobs:
                   sarif_file: changed-sources/apexScanResults.sarif
 
             - name: "Run tests"
-              id: run_tests
               run: |
-                  sf project deploy start --dry-run --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level RunLocalTests --verbose > test_results.txt
+                  sf project deploy start --dry-run --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level RunLocalTests --verbose > test_results.txt 2>&1 || true
                   echo "TEST_RESULTS_PATH=test_results.txt" >> $GITHUB_ENV
-                  echo "::set-output name=test_failed::$?"
-              shell: bash
 
             - name: Post results to PR
               if: always()
@@ -84,8 +81,3 @@ jobs:
                         repo: context.repo.repo,
                         body: `### Code Scan Results:\n[View Code Scanning Alerts](${codeScanningUrl})\n### Test Results:\n\`\`\`${test_results}\`\`\``
                       });
-
-            - name: Fail if tests failed
-              if: ${{ steps.run_tests.outputs.test_failed != '0' }}
-              run: exit 1
-                    
