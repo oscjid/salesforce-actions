@@ -63,11 +63,8 @@ jobs:
               id: run_tests
               run: |
                   sf project deploy start --dry-run --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level RunLocalTests --verbose > test_results.txt
-                  echo "test_outcome=$?" | tee -a $GITHUB_ENV
-                  if [ "$test_outcome" != "0" ]; then
-                    echo "TEST_FAILED=true" >> $GITHUB_ENV
-                  fi
                   echo "TEST_RESULTS_PATH=test_results.txt" >> $GITHUB_ENV
+                  echo "::set-output name=test_failed::$?"
               shell: bash
 
             - name: Post results to PR
@@ -89,5 +86,6 @@ jobs:
                       });
 
             - name: Fail if tests failed
-              if: env.TEST_FAILED == 'true'
+              if: ${{ steps.run_tests.outputs.test_failed != '0' }}
               run: exit 1
+                    
