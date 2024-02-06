@@ -78,8 +78,7 @@ jobs:
                       const issue_number = context.issue.number;
                       const fs = require('fs');
                       const test_results = fs.readFileSync(process.env.TEST_RESULTS_PATH, 'utf8');
-                      const branchName = context.payload.pull_request.head.ref;
-                      const codeScanningUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/security/code-scanning?query=is%3Aopen+branch%3A${branchName}`;
+                      const codeScanningUrl = `https://github.com/${context.repo.owner}/${context.repo.repo}/security/code-scanning?query=is%3Aopen+pr%3A${issue_number}`;
                       github.rest.issues.createComment({
                         issue_number: issue_number,
                         owner: context.repo.owner,
