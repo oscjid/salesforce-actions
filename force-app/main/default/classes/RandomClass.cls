@@ -2,6 +2,7 @@ public with sharing class RandomClass {
 
     public RandomClass(){
         System.debug('Commit 2');
+        System.debug('Commit 3');
         
     }
     
