@@ -5,6 +5,7 @@ public with sharing class RandomClass {
         System.debug('Demo för gustav');
         System.debug('Testar 1 commit');
         System.debug('Testar 2 commit');
+        System.debug('Testar 3 commit');
     }
     
     public static Integer additionTest(Integer a, Integer b){
