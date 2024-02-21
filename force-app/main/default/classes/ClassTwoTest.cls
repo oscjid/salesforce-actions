@@ -1,7 +1,7 @@
 @isTest
 public with sharing class ClassTwoTest {
     @isTest
-    public testConstructor() {
+    static void testConstructor() {
         ClassTwo c2 = new ClassTwo();
         Assert.isNotNull(c2, 'The constructor should return a new instance of the ClassTwo');
     }
