@@ -1,11 +1,12 @@
 public with sharing class RandomClass {
 
     public RandomClass(){
-        System.debug('Hej');
-        System.debug('Hej2');
-        System.debug('Hej2');
-        System.debug('Den här borde finnas efter push till prod');
-        System.debug('Den här borde bara synas om --dry-run tillåter quick deploy?!?!?!?');
+        System.debug('Commit 2');
+        System.debug('Commit 3');
+        System.debug('Commit 4 After destructive changes');
+        System.debug('Commit 5');
+        System.debug('Commit 6');
+        System.debug('Commit 7');
     }
     
     public static Integer additionTest(Integer a, Integer b){
