@@ -8,6 +8,7 @@ public with sharing class RandomClass {
         System.debug('Commit 6');
         System.debug('Commit 7');
         System.debug('Commit 8');
+        System.debug('Main commit which shouldnt show in org');
     }
     
     public static Integer additionTest(Integer a, Integer b){
