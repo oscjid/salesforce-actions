@@ -85,10 +85,14 @@ jobs:
               run: |
                   git log
 
-            - name: "Create delta packages for new, modified or deleted metadata"
+            - name: Generate Delta Package
               run: |
                   mkdir changed-sources
-                  sfdx sgd:source:delta --from "HEAD~1" --output changed-sources/ --generate-delta --source force-app/
+                  BASE_BRANCH=$(git rev-parse --abbrev-ref origin/${{ github.base_ref }})
+                  HEAD_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+                  COMMON_ANCESTOR=$(git merge-base $BASE_BRANCH $HEAD_BRANCH)
+                  sfdx sgd:source:delta --to $HEAD_BRANCH --from $COMMON_ANCESTOR --output changed-sources/ --generate-delta --source force-app/
+              shell: bash
 
             - name: Upload changed-sources folder as artifact
               uses: actions/upload-artifact@v4
