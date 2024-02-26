@@ -8,6 +8,7 @@ public with sharing class RandomClass {
         System.debug('Commit 6');
         System.debug('Commit 7');
         System.debug('Qick commit to rerun test');
+        System.debug('Commit 8');
 
     }
     
