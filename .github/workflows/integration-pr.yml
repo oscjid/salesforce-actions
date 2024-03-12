@@ -43,6 +43,10 @@ jobs:
               run: |
                   sf org login sfdx-url --set-default --sfdx-url-file <(echo "${{ secrets.SFDX_AUTH_URL }}")
 
+            - name: Git Diff
+              run: |
+                  git diff HEAD..HEAD~1
+
             - name: "Create delta packages for new, modified or deleted metadata"
               run: |
                   mkdir changed-sources
@@ -62,8 +66,8 @@ jobs:
             - name: Upload changed-sources folder as artifact
               uses: actions/upload-artifact@v4
               with:
-                name: changed-sources
-                path: changed-sources
+                  name: changed-sources
+                  path: changed-sources
 
             - name: "Run tests"
               id: run_tests
