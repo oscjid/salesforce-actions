@@ -1,4 +1,4 @@
-const fs = require('fs');
+const fs = require("fs");
 const readline = require("readline");
 
 async function extractTests() {
