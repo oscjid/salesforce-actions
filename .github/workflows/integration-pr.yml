@@ -72,10 +72,11 @@ jobs:
                   echo "$PR_BODY" > ./pr_body.txt
                   node ./parsePR.js
                   TESTS=$(cat testsToRun.txt)
+                  echo $TESTS
                   if [ "$TESTS" == "all" ]; then
                     TEST_LEVEL="RunLocalTests"
                   else
-                    TEST_LEVEL="RunSpecifiedTests --tests $TESTS"
+                    TEST_LEVEL="RunSpecifiedTests $TESTS"
                   fi
                   echo "TEST_LEVEL=$TEST_LEVEL" >> $GITHUB_ENV
 
