@@ -3,5 +3,6 @@ public with sharing class ClassTwo {
         System.debug('ClassTwo commit 1');
         System.debug('ClassTwo commit 2');
         System.debug('ClassTwo commit 3');
+        System.debug('ClassTwo commit 4');
     }
 }
