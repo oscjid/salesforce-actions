@@ -43,10 +43,6 @@ jobs:
               run: |
                   sf org login sfdx-url --set-default --sfdx-url-file <(echo "${{ secrets.SFDX_AUTH_URL }}")
 
-            - name: Git Diff
-              run: |
-                  git diff HEAD..HEAD~1
-
             - name: "Create delta packages for new, modified or deleted metadata"
               run: |
                   mkdir changed-sources
@@ -69,20 +65,24 @@ jobs:
                   name: changed-sources
                   path: changed-sources
 
-            - name: "Read PR Body"
+            - name: Read PR Body and Determine Tests to Run
               env:
-                  PR_BODY: ${{github.event.pull_request.body}}
+                  PR_BODY: ${{ github.event.pull_request.body }}
               run: |
-                  echo $PR_BODY > ./pr_body.txt
-                  node ./parsePR.js              
-                  TESTS=$(cat testsToRun.txt)       
-                  echo "APEX_TESTS=$TESTS" >> $GITHUB_ENV
+                  echo "$PR_BODY" > ./pr_body.txt
+                  node ./parsePR.js
+                  TESTS=$(cat testsToRun.txt)
+                  if [ "$TESTS" == "all" ]; then
+                    TEST_LEVEL="RunLocalTests"
+                  else
+                    TEST_LEVEL="RunSpecifiedTests --runtests $TESTS"
+                  fi
+                  echo "TEST_LEVEL=$TEST_LEVEL" >> $GITHUB_ENV
 
-            - name: "Run tests"
-              id: run_tests
+            - name: Run tests based on PR body specification
               run: |
                   set +e
-                  sf project deploy start --dry-run --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level RunLocalTests --verbose > test_results.txt
+                  sf project deploy start --dry-run --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level ${{ env.TEST_LEVEL }} --verbose > test_results.txt
                   test_exit_code=$?
                   set -e
                   echo "TEST_RESULTS_PATH=test_results.txt" >> $GITHUB_ENV
