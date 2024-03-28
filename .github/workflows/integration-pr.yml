@@ -75,7 +75,7 @@ jobs:
                   if [ "$TESTS" == "all" ]; then
                     TEST_LEVEL="RunLocalTests"
                   else
-                    TEST_LEVEL="RunSpecifiedTests --run-tests $TESTS"
+                    TEST_LEVEL="RunSpecifiedTests --tests $TESTS"
                   fi
                   echo "TEST_LEVEL=$TEST_LEVEL" >> $GITHUB_ENV
 
