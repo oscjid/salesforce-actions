@@ -22,7 +22,7 @@
 @isTest
 private class ClassTwoTest {
     @isTest
-    static void myUnitTest() {
+    private static void testClassTwo() {
         ClassTwo testClass = new ClassTwo();
         Assert.isNotNull(testClass, 'The ClassTwo instance should not be null');
     }
