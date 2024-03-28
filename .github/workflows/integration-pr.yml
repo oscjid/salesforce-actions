@@ -69,6 +69,15 @@ jobs:
                   name: changed-sources
                   path: changed-sources
 
+            - name: "Read PR Body"
+              env:
+                  PR_BODY: ${{github.event.pull_request.body}}
+              run: |
+                  echo $PR_BODY > ./pr_body.txt
+                  node ./parsePR.js              
+                  TESTS=$(cat testsToRun.txt)       
+                  echo "APEX_TESTS=$TESTS" >> $GITHUB_ENV
+
             - name: "Run tests"
               id: run_tests
               run: |
