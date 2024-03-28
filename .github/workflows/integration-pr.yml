@@ -72,7 +72,6 @@ jobs:
                   echo "$PR_BODY" > ./pr_body.txt
                   node ./parsePR.js
                   TESTS=$(cat testsToRun.txt)
-                  echo $TESTS
                   if [ "$TESTS" == "all" ]; then
                     TEST_LEVEL="RunLocalTests"
                   else

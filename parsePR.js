@@ -1,4 +1,4 @@
-const fs = require("fs");
+import * as fs from "node:fs/promises";
 const readline = require("readline");
 
 async function extractTests() {
@@ -11,15 +11,16 @@ async function extractTests() {
     });
 
     for await (const line of lines) {
-        if (line.includes("Apex::[") && line.includes("]::Apex")) {
-            let tests = line.substring(line.indexOf("[") + 1, line.indexOf("]::Apex"));
+        const lowerCaseLine = line.toLowerCase();
+        if (lowerCaseLine.includes("apex::[") && lowerCaseLine.includes("]::apex")) {
+            let startIndex = line.toLowerCase().indexOf("apex::[") + "apex::[".length;
+            let endIndex = line.toLowerCase().indexOf("]::apex", startIndex);
+            let tests = line.substring(startIndex, endIndex);
             if (tests.trim()) {
-                // Process each test name, enclosing in quotes if it contains spaces
-                testsToRun = tests.split(",").map(test => {
-                    const trimmedTest = test.trim();
-                    // Enclose in quotes if the test name contains spaces
-                    return trimmedTest.includes(" ") ? `"${trimmedTest}"` : trimmedTest;
-                }).join(" ");
+                testsToRun = tests
+                    .split(",")
+                    .map((test) => test.trim())
+                    .join(" ");
             }
         }
     }
@@ -28,5 +29,3 @@ async function extractTests() {
 }
 
 extractTests();
-
-
