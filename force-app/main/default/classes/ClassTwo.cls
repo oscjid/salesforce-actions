@@ -6,5 +6,6 @@ public with sharing class ClassTwo {
         System.debug('ClassTwo commit 4');
 
         System.debug('ClassTwo commit 5');
+        System.debug('ClassTwo commit 6');
     }
 }
