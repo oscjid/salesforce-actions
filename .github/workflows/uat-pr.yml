@@ -1,64 +1,15 @@
-name: Production PR
+name: UAT PR
 
 on:
     pull_request:
         branches:
-            - main
-            - master
+            - uat
 
 jobs:
-    retrieve-metadata-to-main:
+    run-tests-uat-pr:
         runs-on: ubuntu-latest
         environment:
-            name: production
-        steps:
-            - name: Checkout code
-              uses: actions/checkout@v4
-              with:
-                  fetch-depth: 0
-                  ref: ${{ github.base_ref }}
-
-            - name: Set up Node.js
-              uses: actions/setup-node@v4
-              with:
-                  node-version: lts/*
-
-            - name: Install Salesforce CLI
-              run: |
-                  npm install @salesforce/cli --global
-
-            - name: Install dependencies
-              run: npm install
-
-            - name: Authenticate to Production Org
-              run: |
-                  sf org login sfdx-url --set-default --sfdx-url-file <(echo "${{ secrets.SFDX_AUTH_URL }}")
-
-            - name: Retrieve Production Metadata
-              run: |
-                  sf project retrieve start --manifest manifest/package.xml
-
-            - name: Format with Prettier
-              run: npm run prettier
-
-            - name: Configure Git
-              run: |
-                  git config --global user.email "github-actions[bot]@users.noreply.github.com"
-                  git config --global user.name "GitHub Actions"
-
-            - name: Commit Retrieved Metadata
-              run: |
-                  git add .
-                  git commit -m "Retrieve production metadata" -a || echo "No changes to commit"
-
-            - name: Push to Triggered Branch
-              run: git push origin ${{ env.TRIGGER_BRANCH }}
-
-    validate-production-pr:
-        needs: retrieve-metadata-to-main
-        runs-on: ubuntu-latest
-        environment:
-            name: production
+            name: uat
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
@@ -79,7 +30,7 @@ jobs:
                   echo y | sfdx plugins:install sfdx-git-delta
                   sfdx plugins
 
-            - name: Authenticate to Production Org
+            - name: Authenticate to UAT Org
               run: |
                   sf org login sfdx-url --set-default --sfdx-url-file <(echo "${{ secrets.SFDX_AUTH_URL }}")
 
@@ -94,11 +45,24 @@ jobs:
                   name: changed-sources
                   path: changed-sources
 
-            - name: "Run tests"
-              id: run_tests
+            - name: Read PR Body and Determine Tests to Run
+              env:
+                  PR_BODY: ${{ github.event.pull_request.body }}
+              run: |
+                  echo "$PR_BODY" > ./pr_body.txt
+                  node ./parsePR.js
+                  TESTS=$(cat testsToRun.txt)
+                  if [ "$TESTS" == "all" ]; then
+                    TEST_LEVEL="RunLocalTests"
+                  else
+                    TEST_LEVEL="RunSpecifiedTests --tests $TESTS"
+                  fi
+                  echo "TEST_LEVEL=$TEST_LEVEL" >> $GITHUB_ENV
+
+            - name: Run tests based on PR body specification
               run: |
                   set +e
-                  sf project deploy start --dry-run --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level RunLocalTests --verbose > test_results.txt
+                  sf project deploy start --dry-run --manifest changed-sources/package/package.xml --post-destructive-changes changed-sources/destructiveChanges/destructiveChanges.xml --test-level ${{ env.TEST_LEVEL }} --verbose > test_results.txt
                   test_exit_code=$?
                   set -e
                   echo "TEST_RESULTS_PATH=test_results.txt" >> $GITHUB_ENV
