@@ -27,6 +27,7 @@
 	<types>
 		<members>Account</members>
 		<members>Opportunity</members>
+		<members>TestProfile__c</members>
 		<name>CustomObject</name>
 	</types>
 	<types>
