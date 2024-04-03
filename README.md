@@ -1,18 +1,22 @@
-# Salesforce DX Project: Next Steps
+# Salesforce-Actions Orgs
 
-Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
+### Integration org:
+- Url: https://testingab-dev-ed.develop.my.salesforce.com/
+- Username: actions@test.sandbox
 
-## How Do You Plan to Deploy Your Changes?
 
-Do you want to deploy a set of changes, or create a self-contained application? Choose a [development model](https://developer.salesforce.com/tools/vscode/en/user-guide/development-models).
+### UAT org:
+- Url: https://testuat3-dev-ed.develop.my.salesforce.com/
+- Username: uat2@test.sandbox
 
-## Configure Your Salesforce DX Project
+### Prod org:
+- Url: https://testprod2-dev-ed.develop.my.salesforce.com/
+- Username: prod@test.sandbox
 
-The `sfdx-project.json` file contains useful configuration information for your project. See [Salesforce DX Project Configuration](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_ws_config.htm) in the _Salesforce DX Developer Guide_ for details about this file.
+### Dev Org
+You should ideally develop in your own dev org in a real dev environment, but feel free to borrow mine for testing.
+- Url: https://itarosab60-dev-ed.develop.my.salesforce.com/
+- Username: test@dev.sandbox
 
-## Read All About It
-
-- [Salesforce Extensions Documentation](https://developer.salesforce.com/tools/vscode/)
-- [Salesforce CLI Setup Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_setup.meta/sfdx_setup/sfdx_setup_intro.htm)
-- [Salesforce DX Developer Guide](https://developer.salesforce.com/docs/atlas.en-us.sfdx_dev.meta/sfdx_dev/sfdx_dev_intro.htm)
-- [Salesforce CLI Command Reference](https://developer.salesforce.com/docs/atlas.en-us.sfdx_cli_reference.meta/sfdx_cli_reference/cli_reference.htm)
+## Notes
+This is just an example of a CI/CD workflow for testing different branching strategies. Feel free to do whatever you like. 
